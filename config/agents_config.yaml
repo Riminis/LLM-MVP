@@ -1,0 +1,76 @@
+supported_topics:
+  - math
+  - physics
+  - ml_ai
+  - electrical
+  - materials
+  - mechanics
+
+prompt_paths:
+  math: "prompts/math_prompt.txt"
+  physics: "prompts/physics_prompt.txt"
+  ml_ai: "prompts/ml_ai_prompt.txt"
+  electrical: "prompts/electrical_prompt.txt"
+  materials: "prompts/materials_prompt.txt"
+  mechanics: "prompts/mechanics_prompt.txt"
+
+topic_detection:
+  method: "keyword"
+  keyword_threshold: 2
+  keywords:
+    math:
+      - "теорема"
+      - "доказательство"
+      - "определение"
+      - "интеграл"
+      - "матрица"
+      - "лемма"
+      - "аксиома"
+    physics:
+      - "закон"
+      - "энергия"
+      - "частица"
+      - "поле"
+      - "волн"
+      - "квантов"
+      - "импульс"
+    ml_ai:
+      - "нейросеть"
+      - "обучение"
+      - "градиент"
+      - "loss"
+      - "accuracy"
+      - "embedding"
+      - "transformer"
+      - "модель"
+    electrical:
+      - "схема"
+      - "транзистор"
+      - "напряжение"
+      - "ток"
+      - "импеданс"
+      - "микросхема"
+      - "резистор"
+    materials:
+      - "сплав"
+      - "кристалл"
+      - "фаза"
+      - "твердотельный"
+      - "проводимость"
+      - "наноструктура"
+      - "материал"
+    mechanics:
+      - "момент"
+      - "сила"
+      - "кинематика"
+      - "робот"
+      - "манипулятор"
+      - "динамика"
+      - "механизм"
+
+gigachat:
+  model: "GigaChat-Pro"
+  timeout: 30
+
+empty_result_handling:
+  skip_empty: true
