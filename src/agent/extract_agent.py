@@ -1,6 +1,5 @@
 import json
 import requests
-from src.in_out import document_loader, markdown_writer
 
 
 def extract_agent_entities(text: str, access_token: str, prompt: str, model: str = "GigaChat") -> dict:
