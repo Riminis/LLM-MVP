@@ -1,22 +1,34 @@
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-def get_current_time_from_api(timezone: str = "Etc/UTC") -> datetime:
-    url = f"https://worldtimeapi.org/api/timezone/{timezone}"
+def get_current_time(timezone_name: str = "UTC") -> datetime:
+    sources = [
+        "https://httpbin.org/get",
+        "https://api.github.com",
+    ]
     
-    try:
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        data = response.json()
+    utc_time = None
+    for url in sources:
+        try:
+            response = requests.get(url, timeout=3)
+            date_header = response.headers.get("Date")
+            if date_header:
 
-        datetime_str = data.get("datetime")
-        if not datetime_str:
-            raise ValueError("Ответ API не содержит поля 'datetime'")
-        
-        return datetime.fromisoformat(datetime_str)
-        
-    except requests.RequestException as e:
-        raise requests.RequestException(f"Ошибка при запросе к WorldTimeAPI: {e}") from e
-    except (ValueError, KeyError) as e:
-        raise ValueError(f"Некорректный ответ от WorldTimeAPI: {e}") from e
+                naive_utc = datetime.strptime(date_header, "%a, %d %b %Y %H:%M:%S %Z")
+
+                utc_time = naive_utc.replace(tzinfo=timezone.utc)
+                break
+        except Exception:
+            continue
+    
+    if utc_time is None:
+        raise RuntimeError("Не удалось получить время")
+
+    utc_time = utc_time.replace(microsecond=0)
+    
+    if timezone_name.upper() == "UTC":
+        return utc_time
+    else:
+        target_tz = ZoneInfo(timezone_name)
+        return utc_time.astimezone(target_tz)
