@@ -1,5 +1,18 @@
-def save_to_markdown(data: dict, output_path: str):
+def save_to_markdown(data: dict, output_path: str, time, topics, tags=None, status='Draft', users='User'):
     with open(output_path, "w", encoding="utf-8") as f:
+        f.write
+
+        f.write(
+        "---\n"
+        f"created: {time.date()}\n"
+        f"updated: {time.date()}\n"
+        f"topics: {topics}\n"
+        f"tags: {tags}\n"
+        f"status: {status}\n"
+        f"author: {users}\n"
+        "---\n\n"
+        )
+
         f.write("# Ключевые математические понятия\n\n")
         
         if data["definitions"]:
@@ -25,3 +38,5 @@ def save_to_markdown(data: dict, output_path: str):
             for ex in data["examples"]:
                 f.write(f"- {ex}\n")
             f.write("\n")
+    
+    return 'OK'

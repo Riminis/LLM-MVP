@@ -69,7 +69,7 @@ topic_detection:
       - "механизм"
 
 gigachat:
-  model: "GigaChat-Pro"
+  model: "GigaChat-Lite"
   timeout: 30
 
 empty_result_handling:
