@@ -14,29 +14,29 @@ def save_to_markdown(data: dict, output_path: str, time, topics, tags=None, stat
         )
 
         f.write("# Ключевые математические понятия\n\n")
-        
-        if data["definitions"]:
-            f.write("## Определения\n\n")
-            for d in data["definitions"]:
-                f.write(f"- {d}\n")
-            f.write("\n")
-        
-        if data["theorems"]:
-            f.write("## Теоремы\n\n")
-            for t in data["theorems"]:
-                f.write(f"- {t}\n")
-            f.write("\n")
-        
-        if data["formulas"]:
-            f.write("## Формулы\n\n")
-            for fm in data["formulas"]:
-                f.write(f"- `{fm}`\n")
-            f.write("\n")
-        
-        if data["examples"]:
-            f.write("## Примеры\n\n")
-            for ex in data["examples"]:
-                f.write(f"- {ex}\n")
-            f.write("\n")
+        if data['domain'] == 'Математика':
+            if data['structured']["definitions"]:
+                f.write("## Определения\n\n")
+                for d in data['structured']["definitions"]:
+                    f.write(f"- {d}\n")
+                f.write("\n")
+
+            if data['structured']["theorems"]:
+                f.write("## Теоремы\n\n")
+                for t in data['structured']["theorems"]:
+                    f.write(f"- {t}\n")
+                f.write("\n")
+
+            if data['structured']["formulas"]:
+                f.write("## Формулы\n\n")
+                for fm in data['structured']["formulas"]:
+                    f.write(f"- `{fm}`\n")
+                f.write("\n")
+
+            if data['structured']["examples"]:
+                f.write("## Примеры\n\n")
+                for ex in data['structured']["examples"]:
+                    f.write(f"- {ex}\n")
+                f.write("\n")
     
     return 'OK'
