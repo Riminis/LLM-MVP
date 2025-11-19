@@ -1,42 +1,64 @@
 def save_to_markdown(data: dict, output_path: str, time, topics, tags=None, status='Draft', users='User'):
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write
-
-        f.write(
-        "---\n"
-        f"created: {time.date()}\n"
-        f"updated: {time.date()}\n"
-        f"topics: {topics}\n"
-        f"tags: {tags}\n"
-        f"status: {status}\n"
-        f"author: {users}\n"
-        "---\n\n"
-        )
-
-        f.write("# Ключевые математические понятия\n\n")
-        if data['domain'] == 'Математика':
-            if data['structured']["definitions"]:
-                f.write("## Определения\n\n")
-                for d in data['structured']["definitions"]:
-                    f.write(f"- {d}\n")
+        # Записываем YAML-фронт-маттер
+        f.write("---\n")
+        f.write(f"created: {time.date()}\n")
+        f.write(f"updated: {time.date()}\n")
+        f.write(f"topics: {topics}\n")
+        f.write(f"tags: {tags}\n")
+        f.write(f"status: {status}\n")
+        f.write(f"author: {users}\n")
+        f.write("---\n\n")
+        
+        # Определяем заголовок в зависимости от домена
+        domain = data.get('domain', 'Документ')
+        f.write(f"# Ключевые понятия: {domain}\n\n")
+        
+        # Проверяем структуру данных: либо это {'structured': {...}}, либо сразу структурированные данные
+        if 'structured' in data:
+            # Формат: {'structured': {...}}
+            structured_data = data['structured']
+        else:
+            # Формат: сразу структурированные данные
+            structured_data = data
+        
+        # Обрабатываем все возможные типы данных
+        sections = {
+            "definitions": "Определения",
+            "theorems": "Теоремы", 
+            "formulas": "Формулы",
+            "examples": "Примеры",
+            "concepts": "Концепции",
+            "laws": "Законы",
+            "principles": "Принципы",
+            "rules": "Правила",
+            "postulates": "Постулаты",
+            "corollaries": "Следствия",
+            "lemmas": "Леммы",
+            "proofs": "Доказательства",
+            "properties": "Свойства",
+            "applications": "Применения",
+            "methods": "Методы",
+            "notations": "Обозначения"
+        }
+        
+        for key, title in sections.items():
+            if key in structured_data and structured_data[key]:
+                f.write(f"## {title}\n\n")
+                for item in structured_data[key]:
+                    if key == "formulas":
+                        f.write(f"- ${item}$\n")
+                    else:
+                        f.write(f"- {item}\n")
                 f.write("\n")
-
-            if data['structured']["theorems"]:
-                f.write("## Теоремы\n\n")
-                for t in data['structured']["theorems"]:
-                    f.write(f"- {t}\n")
-                f.write("\n")
-
-            if data['structured']["formulas"]:
-                f.write("## Формулы\n\n")
-                for fm in data['structured']["formulas"]:
-                    f.write(f"- `{fm}`\n")
-                f.write("\n")
-
-            if data['structured']["examples"]:
-                f.write("## Примеры\n\n")
-                for ex in data['structured']["examples"]:
-                    f.write(f"- {ex}\n")
+        
+        # Если есть другие поля в structured_data, которые не вошли в sections
+        for key, value in structured_data.items():
+            if key not in sections and value and isinstance(value, list):
+                section_title = key.replace('_', ' ').title()
+                f.write(f"## {section_title}\n\n")
+                for item in value:
+                    f.write(f"- {item}\n")
                 f.write("\n")
     
     return 'OK'

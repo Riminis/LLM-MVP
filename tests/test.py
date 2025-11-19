@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.in_out import document_loader, markdown_writer
 from src.auth import gigachat_auth
 from src.agent import extract_agent
@@ -20,9 +24,9 @@ def main():
 
     print(prompt_math)
 
-    #   test_api_giga(access_token, input_path, prompt_math)
+    test_api_giga(access_token, input_path, prompt_math)
 
-    #   print(test_api_time("Europe/Moscow"))
+    # print(test_api_time("Europe/Moscow"))
 
 
 
@@ -33,7 +37,16 @@ def test_api_giga(access_token, input_path, prompt):
 
     print(text)
 
-    markdown_writer.save_to_markdown(extracted_math, "examples/math_summary.md")
+    # Получаем текущее время
+    time = time_from_api.get_current_time("Europe/Moscow")
+    # Указываем темы и теги
+    topics = ["Математика", "Анализ"]
+    tags = ["производная", "интеграл", "теорема"]
+
+    # Добавляем домен к извлеченным данным
+    extracted_math['domain'] = 'Математический анализ'
+
+    markdown_writer.save_to_markdown(extracted_math, "examples/math_summary.md", time, topics, tags)
 
     print(extracted_math)
 
