@@ -1,10 +1,7 @@
 import os
 import logging
-import json
-import base64
-import uuid
-from typing import Optional, Dict, Any
 from pathlib import Path
+from typing import Optional, Dict, Any
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -82,15 +79,20 @@ class GigaChatClient:
         logger.error(f"Status: {response.status_code}")
 
         try:
+            import json
             error_data = response.json()
             logger.error(f"Response: {json.dumps(error_data, indent=2)}")
-        except json.JSONDecodeError:
+        except Exception:
             logger.error(f"Text: {response.text[:500]}")
 
         response.raise_for_status()
 
     def get_token(self) -> str:
         """Retrieve OAuth token from Sber API."""
+        import base64
+        import uuid
+        import json
+
         try:
             credentials = f"{self.client_id}:{self.client_secret}"
             encoded_auth = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
@@ -150,6 +152,8 @@ class GigaChatClient:
         max_tokens: int = 20000
     ) -> str:
         """Send request to GigaChat API."""
+        import json
+
         if not self.access_token:
             self.get_token()
 
@@ -215,11 +219,12 @@ class GigaChatClient:
         temperature: float = 0.0
     ) -> Dict[str, Any]:
         """Get JSON response from chat."""
+        import re
+        import json
+
         raw_output = self.chat(text=text, prompt=prompt, temperature=temperature)
 
         try:
-            import re
-
             json_match = re.search(
                 r'```(?:json)?\s*([\s\S]*?)\s*```',
                 raw_output
