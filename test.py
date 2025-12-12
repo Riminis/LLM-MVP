@@ -1,39 +1,92 @@
 import os
-import json
+import sys
 from pathlib import Path
-from src.extract_agent import GigaChatClient
+from dotenv import load_dotenv
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+load_dotenv()
+
+from src.pipeline import KnowledgeBasePipeline
 from src.document_loader import DocumentLoader
 
 
-client_id = "019a0884-a71f-7bf2-9d3a-b753f145b3e6"
-client_secret = "9eac3076-7e96-46b2-8711-8c761e601539"
+def check_files() -> bool:
+    """Verify required files exist."""
+    required_files = {
+        "examples/math_sample.txt": "Input file",
+        "prompts/universal_prompt.txt": "Prompt",
+        "certs/sber_cert.pem": "SSL Certificate",
+    }
 
-input_file = "examples/math_sample.txt"
-prompt_file = "prompts/universal_prompt.txt"
+    logger.info("Checking required files...")
+    for filepath, description in required_files.items():
+        if Path(filepath).exists():
+            logger.info(f"Found: {description}")
+        else:
+            logger.error(f"Missing: {description} ({filepath})")
+            return False
+    return True
 
-output_md = "examples/result.md"
-output_json = "examples/result.json"
 
-client = GigaChatClient(client_id=client_id, client_secret=client_secret)
+def main():
+    """Main entry point."""
+    if not check_files():
+        logger.error("Some required files are missing")
+        sys.exit(1)
 
-text = DocumentLoader.load(input_file)['content']
+    logger.info("Initializing pipeline...")
+    try:
+        pipeline = KnowledgeBasePipeline(
+            output_dir="vault",
+            index_path=".obsidian/index.json"
+        )
+        logger.info("Pipeline initialized successfully")
+    except ValueError as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
 
-print(f"Прочитан файл: {input_file}")
-print(f"Размер: {len(text)} символов")
-print("=" * 50)
+    input_file = "examples/math_sample.txt"
+    prompt_file = "prompts/universal_prompt.txt"
 
-prompt = DocumentLoader.load(prompt_file)['content']
+    logger.info("Starting document processing")
+    logger.info(f"Input: {input_file}")
+    logger.info(f"Prompt: {prompt_file}")
 
-print(f"Прочитан файл: {prompt_file}")
-print(f"Размер: {len(prompt)} символов")
-print("=" * 50)
+    try:
+        output_file = pipeline.process_document(
+            input_file=input_file,
+            prompt_file=prompt_file
+        )
+        logger.info("Document processed successfully")
+        logger.info(f"Output: {output_file}")
+    except Exception as e:
+        logger.error(f"Processing failed: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
-summary = client.chat(text=text, prompt=prompt)
+    logger.info("Knowledge base statistics:")
+    stats = pipeline.get_graph_stats()
+    for key, value in stats.items():
+        logger.info(f"  {key}: {value}")
 
-print(f"Получена выжимка: {len(summary)} символов")
-print("=" * 50)
+    orphaned = pipeline.find_orphaned_files()
+    if orphaned:
+        logger.warning("Files without links:")
+        for file in orphaned:
+            logger.warning(f"  {file}")
+    else:
+        logger.info("All files are properly connected")
 
-with open(output_md, "w", encoding="utf-8") as f:
-    f.write(summary)
+    logger.info("Index saved to .obsidian/index.json")
+    logger.info("Process completed")
 
-print(f"Markdown сохранён: {output_md}")
+
+if __name__ == "__main__":
+    main()
